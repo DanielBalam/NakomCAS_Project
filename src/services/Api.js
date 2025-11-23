@@ -1,29 +1,23 @@
-const API_URL = "https://tu-backend.com"; // cambiar a la url de jairo
+const API_URL = "http://localhost:8000/api";
 
-export async function fetchWithAuth(endpoint, options = {}) {
-  const token = localStorage.getItem("token");
+export async function registerUser(userData) {
+  try {
+    const response = await fetch(`${API_URL}/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userData),
+    });
 
-  const headers = {
-    "Content-Type": "application/json",
-    ...options.headers,
-  };
-
-  // Si existe token → agrega Authorization
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'Error en el registro');
+    }
+    
+    return data;
+  } catch (error) {
+    throw error;
   }
-
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
-
-  // Manejo global de errores
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || "Error en la petición");
-  }
-
-  // Respuesta en JSON
-  return response.json();
 }
